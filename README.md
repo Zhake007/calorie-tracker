@@ -95,7 +95,7 @@ export const provider = new GoogleAuthProvider();
 
 👨‍💻 Автор
 
-Telegram: @Zhake007
+Telegram: @zhakenti07
 
 GitHub: Zhake007
 
