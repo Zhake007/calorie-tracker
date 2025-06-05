@@ -1,9 +1,7 @@
-// src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-
-
+import { getStorage } from "firebase/storage"; // ⬅️ добавлено
 
 const firebaseConfig = {
   apiKey: "AIzaSyCUbUHkJ_uj1vnFW1vtpyFxzXeor9YOzdw",
@@ -15,11 +13,10 @@ const firebaseConfig = {
   measurementId: "G-H09X3VR556",
 };
 
-// ✅ создаём app и db
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ✅ экспортируем db обязательно!
 export { db };
 export const auth = getAuth(app);
-export const provider = new GoogleAuthProvider();   
+export const provider = new GoogleAuthProvider();
+export const storage = getStorage(app); // ⬅️ вот он!

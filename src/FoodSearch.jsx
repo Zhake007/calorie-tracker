@@ -15,19 +15,19 @@ const FoodSearch = ({ onSelect }) => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-2">🔍 Поиск продуктов</h2>
+      <h2 className="text-xl font-semibold mb-2">🔍 тағамдарды іздеу</h2>
       <div className="flex gap-2 mb-3">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full border p-2 rounded"
-          placeholder="Начните вводить, например: Хлеб..."
+          placeholder="Жазып бастаңыз, мысалы: нан..."
         />
         <button
           onClick={searchFood}
-          className="bg-emerald-500 text-white px-4 rounded hover:bg-emerald-600"
+          className="bg-emerald-500 text-black px-4 rounded hover:bg-emerald-600"
         >
-          Поиск
+          іздеу
         </button>
       </div>
 

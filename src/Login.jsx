@@ -1,55 +1,42 @@
 import React, { useState } from "react";
-import { auth, provider } from "./firebase";
 import {
   signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  setPersistence,
+  GoogleAuthProvider,
   signInWithPopup,
+  setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
 } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { auth, provider } from "./firebase";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetSent, setResetSent] = useState(false);
-
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const { email, password } = form;
 
-    if (!email || !password) return setError("Заполните все поля");
+    const { email, password } = form;
+    if (!email || !password) {
+      setError("Барлық жерді толтырыңыз.");
+      return;
+    }
 
     try {
       await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (err) {
-      if (err.code === "auth/user-not-found") setError("Данный емаил не зареган");
-      else if (err.code === "auth/wrong-password") setError("неверный пароль");
-      else setError("Ошибка при входе: " + err.message);
-    }
-  };
-
-  const handlePasswordReset = async () => {
-    setError("");
-    if (!resetEmail) return setError(" введите Email ");
-
-    try {
-      await sendPasswordResetEmail(auth, resetEmail);
-      setResetSent(true);
-    } catch (err) {
-      setError("неверно: " + err.message);
+      setError("❌ Қате email немесе құпиясөз.");
     }
   };
 
@@ -58,80 +45,78 @@ const Login = () => {
       await signInWithPopup(auth, provider);
       navigate("/");
     } catch (err) {
-      setError("Google арқылы кіру сәтсіз: " + err.message);
+      setError("❌ Гуглмен кіру кезінде қате пайда болды.");
     }
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">🔐 Вход</h2>
-      {error && <div className="text-red-500 mb-3">{error}</div>}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center text-white px-4">
+      <div className="glass p-6 rounded-xl shadow-xl w-full max-w-md animate-fade">
+        <h2 className="text-3xl font-bold mb-6 text-emerald-400 neon-text text-center">🔐 Кіру</h2>
 
-      <form onSubmit={handleLogin} className="space-y-4">
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="пароль"
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
+        {error && <div className="text-red-400 mb-4 text-sm text-center">{error}</div>}
 
-        <label className="flex items-center gap-2 text-sm">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="checkbox"
-            checked={remember}
-            onChange={() => setRemember(!remember)}
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            className="input-glass w-full"
           />
-          Запомнить меня
-        </label>
 
-        <button className="w-full bg-emerald-600 text-white p-2 rounded hover:bg-emerald-700 transition">
-          Вход
-        </button>
-      </form>
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Құпиясөз"
+              value={form.password}
+              onChange={handleChange}
+              className="input-glass w-full"
+            />
+            <span
+              className="absolute top-2.5 right-3 text-sm text-cyan-400 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "Жасыру" : "Көрсету"}
+            </span>
+          </div>
 
-      <div className="mt-6">
-        <p className="text-sm text-gray-500 mb-2">Забыли пароль?</p>
-        <input
-          type="email"
-          placeholder="введите емеил"
-          value={resetEmail}
-          onChange={(e) => setResetEmail(e.target.value)}
-          className="w-full p-2 border rounded mb-2"
-        />
-        <button
-          onClick={handlePasswordReset}
-          className="text-blue-500 text-sm hover:underline"
-        >
-          восстановить пароль
-        </button>
-        {resetSent && (
-          <p className="text-green-500 text-sm mt-2">
-            Письмо отправлено, првоерьте почту
+          <div className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              id="remember"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="accent-emerald-400"
+            />
+            <label htmlFor="remember">Мені жаттап ал</label>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded font-bold hover:opacity-90 transition-all"
+          >
+            🚀 Кіру
+          </button>
+        </form>
+
+        <div className="text-center mt-4 space-y-3">
+          <p className="text-sm">
+            Аккаунтыңыз жоқ па?{" "}
+            <Link to="/register" className="text-blue-400 underline hover:text-blue-300">
+              Тіркеліңіз
+            </Link>
           </p>
-        )}
-      </div>
 
-      <div className="mt-8 text-center">
-        <p className="mb-2 text-gray-500">или через     :</p>
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full bg-white border text-black rounded p-2 flex items-center justify-center gap-2 hover:bg-gray-100"
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            className="w-5 h-5"
-          />
-          Вход через гугл
-        </button>
+          <p
+            onClick={handleGoogleLogin}
+            className="cursor-pointer inline-block bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded transition"
+          >
+            🔓 Гугл арқылы кіру
+          </p>
+        </div>
       </div>
     </div>
   );
